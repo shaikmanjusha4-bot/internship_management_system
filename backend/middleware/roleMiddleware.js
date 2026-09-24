@@ -1,0 +1,17 @@
+/**
+ * Middleware to restrict access based on user role(s)
+ * @param  {...string} roles - e.g. 'admin', 'student'
+ */
+const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: `Forbidden: User role '${req.user ? req.user.role : 'unauthenticated'}' is not authorized to access this resource`,
+      });
+    }
+    next();
+  };
+};
+
+module.exports = { authorize };
