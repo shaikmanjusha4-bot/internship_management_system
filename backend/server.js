@@ -76,6 +76,56 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Root URL status & navigation page
+app.get('/', (req, res) => {
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.status(200).json({
+      status: 'OK',
+      service: 'Internship Management System API',
+      frontendUrl: 'https://internship-management-system-liart.vercel.app',
+      endpoints: ['/api/health', '/api/internships', '/api/seed'],
+    });
+  }
+  res.status(200).send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>IMS Backend API</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 32px; max-width: 520px; width: 100%; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5); }
+        .badge { display: inline-block; background: #10b981; color: #064e3b; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 9999px; text-transform: uppercase; margin-bottom: 16px; }
+        h1 { margin: 0 0 8px; font-size: 22px; color: #fff; }
+        p { color: #94a3b8; font-size: 14px; line-height: 1.5; margin: 0 0 20px; }
+        .btn { display: block; text-align: center; background: #4f46e5; color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 14px; transition: background 0.2s; }
+        .btn:hover { background: #4338ca; }
+        .endpoints { margin-top: 24px; padding-top: 20px; border-top: 1px solid #334155; font-size: 13px; color: #cbd5e1; }
+        .endpoints code { background: #0f172a; padding: 2px 6px; border-radius: 4px; color: #38bdf8; font-family: monospace; }
+        .endpoints a { color: #818cf8; text-decoration: none; }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <span class="badge">● Backend Online</span>
+        <h1>Internship Management System API</h1>
+        <p>This is the backend REST API server. The complete interactive web application (Student & Admin portal) is hosted on Vercel.</p>
+        <a class="btn" href="https://internship-management-system-liart.vercel.app" target="_blank">Open Web Application →</a>
+        <div class="endpoints">
+          <p style="margin-bottom: 8px;"><strong>API Endpoints:</strong></p>
+          <ul style="padding-left: 20px; margin: 0; line-height: 1.8;">
+            <li><code>GET</code> <a href="/api/health">/api/health</a> (Server Health)</li>
+            <li><code>GET</code> <a href="/api/internships">/api/internships</a> (All Internships)</li>
+            <li><code>GET</code> <a href="/api/seed">/api/seed</a> (Database Initialization)</li>
+          </ul>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
 // Seed endpoint for manual or remote initialization
 app.get('/api/seed', async (req, res) => {
   try {
