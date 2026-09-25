@@ -8,6 +8,13 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('ims_token') || null);
   const [loading, setLoading] = useState(true);
 
+  const logout = () => {
+    localStorage.removeItem('ims_token');
+    localStorage.removeItem('ims_user');
+    setToken(null);
+    setUser(null);
+  };
+
   // Sync user from local storage or backend on initial mount
   useEffect(() => {
     const initializeAuth = async () => {
@@ -24,14 +31,27 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('ims_user', JSON.stringify(res.data.user));
           }
         } catch (error) {
-          console.error('Session expired or invalid:', error);
-          logout();
+          console.warn('Session verification note:', error?.message);
+          // Only clear session if token is truly rejected (401), not for backend cold-starts/network blips
+          if (error.response && error.response.status === 401) {
+            logout();
+          }
         }
       }
       setLoading(false);
     };
 
     initializeAuth();
+
+    // Listen for global 401 unauthorized events
+    const handleUnauthorized = () => {
+      logout();
+    };
+
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => {
+      window.removeEventListener('auth:unauthorized', handleUnauthorized);
+    };
   }, []);
 
   const login = async (credentials) => {
@@ -58,13 +78,6 @@ export const AuthProvider = ({ children }) => {
     setUser(receivedUser);
 
     return receivedUser;
-  };
-
-  const logout = () => {
-    localStorage.removeItem('ims_token');
-    localStorage.removeItem('ims_user');
-    setToken(null);
-    setUser(null);
   };
 
   const updateUser = (updatedUser) => {
